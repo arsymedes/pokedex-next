@@ -128,3 +128,22 @@ export default function Page() {
     </>
   );
 }
+
+export async function getServerSideProps() {
+  const { data } = await client.query({
+    query: gql`
+      query Pokemon {
+        pokemon(name: ) {
+          name
+          image
+        }
+      }
+    `,
+  });
+
+  return {
+    props: {
+      pokemons: data.pokemons,
+    }
+  }
+}

@@ -1,56 +1,13 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
-import Nav from "../components/nav/nav"
-import Card from "../components/card/card"
+import Nav from "../components/nav/nav";
+import Card from "../components/card/card";
+import client from "../../apollo-client";
+import { gql } from "@apollo/client";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
-  const data = {
-    pokemons: [
-      {
-        name: "Bulbasaur",
-        image: "https://img.pokemondb.net/artwork/bulbasaur.jpg",
-      },
-      {
-        name: "Ivysaur",
-        image: "https://img.pokemondb.net/artwork/ivysaur.jpg",
-      },
-      {
-        name: "Venusaur",
-        image: "https://img.pokemondb.net/artwork/venusaur.jpg",
-      },
-      {
-        name: "Charmander",
-        image: "https://img.pokemondb.net/artwork/charmander.jpg",
-      },
-      {
-        name: "Charmeleon",
-        image: "https://img.pokemondb.net/artwork/charmeleon.jpg",
-      },
-      {
-        name: "Charizard",
-        image: "https://img.pokemondb.net/artwork/charizard.jpg",
-      },
-      {
-        name: "Squirtle",
-        image: "https://img.pokemondb.net/artwork/squirtle.jpg",
-      },
-      {
-        name: "Wartortle",
-        image: "https://img.pokemondb.net/artwork/wartortle.jpg",
-      },
-      {
-        name: "Blastoise",
-        image: "https://img.pokemondb.net/artwork/blastoise.jpg",
-      },
-      {
-        name: "Caterpie",
-        image: "https://img.pokemondb.net/artwork/caterpie.jpg",
-      },
-    ],
-  };
-
+export default function Home({ pokemons }) {
   return (
     <>
       <Head>
@@ -61,10 +18,29 @@ export default function Home() {
       </Head>
       <Nav />
       <main className="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-12 p-12">
-        {data.pokemons.map((el) => (
+        {pokemons.map((el) => (
           <Card name={el.name} image={el.image} key={el.name} />
         ))}
       </main>
     </>
   );
+}
+
+export async function getServerSideProps() {
+  const { data } = await client.query({
+    query: gql`
+      query Pokemons {
+        pokemons(first: 5) {
+          name
+          image
+        }
+      }
+    `,
+  });
+
+  return {
+    props: {
+      pokemons: data.pokemons,
+    }
+  }
 }
