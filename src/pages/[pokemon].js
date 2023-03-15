@@ -4,87 +4,20 @@ import Image from "next/image";
 import CardSmall from "../components/card/cardsmall";
 import Info from "../components/info/info";
 import InfoList from "../components/info/infolist";
+import { useRouter } from "next/router";
+import client from "../../apollo-client";
+import { gql } from "@apollo/client";
 
-export default function Page() {
-  const pokemon = {
-    name: "Bulbasaur",
-    weight: {
-      minimum: "6.04kg",
-      maximum: "7.76kg",
-    },
-    image: "https://img.pokemondb.net/artwork/bulbasaur.jpg",
-    height: {
-      minimum: "0.61m",
-      maximum: "0.79m",
-    },
-    classification: "Seed Pokémon",
-    types: ["Grass", "Poison"],
-    resistant: ["Water", "Electric", "Grass", "Fighting", "Fairy"],
-    attacks: {
-      fast: [
-        {
-          name: "Tackle",
-          type: "Normal",
-          damage: 12,
-        },
-        {
-          name: "Vine Whip",
-          type: "Grass",
-          damage: 7,
-        },
-      ],
-      special: [
-        {
-          name: "Power Whip",
-          type: "Grass",
-          damage: 70,
-        },
-        {
-          name: "Seed Bomb",
-          type: "Grass",
-          damage: 40,
-        },
-        {
-          name: "Sludge Bomb",
-          type: "Poison",
-          damage: 55,
-        },
-      ],
-    },
-    weaknesses: ["Fire", "Ice", "Flying", "Psychic"],
-    evolutions: [
-      {
-        id: "UG9rZW1vbjowMDI=",
-      },
-      {
-        id: "UG9rZW1vbjowMDM=",
-      },
-    ],
-  };
-
-  const ivysaur = {
-    name: "Ivysaur",
-    image: "https://img.pokemondb.net/artwork/ivysaur.jpg",
-  };
-
-  const evolutions = [
-    {
-      name: "Ivysaur",
-      image: "https://img.pokemondb.net/artwork/ivysaur.jpg",
-    },
-    {
-      name: "Venusaur",
-      image: "https://img.pokemondb.net/artwork/venusaur.jpg",
-    },
-  ];
-
+export default function Page({ pokemon }) {
+  const router = useRouter();
   return (
     <>
       <Head>
-        <title>{pokemon.name}</title>
+        <title>{`${router.query.pokemon} | Pokedex Arsy`}</title>
       </Head>
       <Nav />
-      <main className="grid grid-cols-[repeat(auto-fill,minmax(min(375px,100%),1fr))] gap-4 md:gap-12 p-4 md:p-12">
+      <main className="grid grid-cols-[repeat(auto-fill,minmax(min(375px,100%),1fr))] gap-4 md:gap-12 p-4 md:p-12 relative">
+        <div className="absolute px-6 py-3 text-gray-50 bg-gray-900 text-3xl rounded-br-3xl">{router.query.pokemon}</div>
         <div className="flex flex-col gap-4 md:gap-8">
           <div className="border-black border rounded-md p-4 md:p-12">
             <Image
@@ -95,16 +28,16 @@ export default function Page() {
               src={pokemon.image}
             />
           </div>
-          <div className="border border-gray-900">
+          {pokemon.evolutions && <div className="border border-gray-900">
             <div className=" text-gray-50 bg-gray-900 px-6 py-2 text-lg">
               Evolutions
             </div>
             <ul className="flex gap-4 px-4 py-4">
-              {evolutions.map((el) => (
+              {pokemon.evolutions.map((el) => (
                 <CardSmall key={el.name} image={el.image} name={el.name} />
               ))}
             </ul>
-          </div>
+          </div>}
         </div>
         <div className="flex flex-col gap-4 md:gap-8">
           <Info title="Weight Rage">
@@ -129,13 +62,41 @@ export default function Page() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ params }) {
   const { data } = await client.query({
     query: gql`
       query Pokemon {
-        pokemon(name: ) {
+        pokemon(name: "${params.pokemon}") {
           name
           image
+          weight {
+            minimum
+            maximum
+          }
+          height {
+            minimum
+            maximum
+          }
+          classification
+          types
+          resistant
+          attacks {
+            fast {
+              name
+              type
+              damage
+            }
+            special {
+              name
+              type
+              damage
+            }
+          }
+          weaknesses
+          evolutions {
+            name
+            image
+          }
         }
       }
     `,
@@ -143,7 +104,7 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      pokemons: data.pokemons,
-    }
-  }
+      pokemon: data.pokemon,
+    },
+  };
 }
