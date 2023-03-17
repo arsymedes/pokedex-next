@@ -18,14 +18,13 @@
 }
 
 .imageContainer {
-  height: 13rem;
-  margin: 2.5rem;
-  display: flex;
-  justify-content: center;
+  padding: 3rem;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .image {
-  height: 100%;
+  width: 100%;
 }
 
 /* text-2xl font-semibold text-gray-50 text-center py-3 bg-gray-900 self-stretch */

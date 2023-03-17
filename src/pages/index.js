@@ -1,10 +1,13 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
+import { useState, useEffect } from "react";
+
 import Nav from "../components/nav/nav";
 import Card from "../components/card/card";
+import Pokeball from "../components/pokeball/pokeball";
+
 import client from "../../apollo-client";
 import { gql, useQuery } from "@apollo/client";
-import { useState, useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 const POKEMONS_QUERY = gql`
@@ -56,13 +59,18 @@ export default function Home(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <Nav />
       <main className="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-12 p-12">
         {pokemons.map((el) => (
           <Card name={el.name} image={el.image} key={el.name} />
         ))}
       </main>
-      <div>{loading}</div>
+      {loading && (
+        <div className="flex justify-center mb-10">
+          <Pokeball />
+        </div>
+      )}
     </>
   );
 }

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import logo from "./logo.svg"
+import logo from "../../../public/logo.svg"
 import filter from "./filter.svg"
 
 export default function nav() {
