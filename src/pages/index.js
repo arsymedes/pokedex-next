@@ -3,11 +3,51 @@ import { Inter } from "next/font/google";
 import Nav from "../components/nav/nav";
 import Card from "../components/card/card";
 import client from "../../apollo-client";
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
+import { useState, useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
+const POKEMONS_QUERY = gql`
+  query Pokemons($first: Int!) {
+    pokemons(first: $first) {
+      name
+      image
+    }
+  }
+`;
 
-export default function Home({ pokemons }) {
+export default function Home(props) {
+  const [pokemons, setPokemons] = useState(props.pokemons);
+  const [loading, setLoading] = useState(false);
+
+  const { fetchMore } = useQuery(POKEMONS_QUERY, {
+    variables: { first: 6 },
+  });
+
+  useEffect(() => {
+    async function getPokemons() {
+      const { data, loading } = await fetchMore({
+        variables: { first: pokemons.length + 6 },
+      });
+      setPokemons(data.pokemons);
+      setLoading(false);
+    }
+
+    function handleScroll(e) {
+      const target = e.target.documentElement;
+      const isBottom =
+        target.scrollHeight - target.scrollTop - 1 <= target.clientHeight;
+      if (!loading && isBottom) {
+        setLoading(true);
+        getPokemons();
+      }
+    }
+
+    document.addEventListener("scroll", handleScroll);
+
+    return () => document.removeEventListener("scroll", handleScroll);
+  }, [fetchMore, loading, pokemons]);
+
   return (
     <>
       <Head>
@@ -22,6 +62,7 @@ export default function Home({ pokemons }) {
           <Card name={el.name} image={el.image} key={el.name} />
         ))}
       </main>
+      <div>{loading}</div>
     </>
   );
 }
@@ -30,7 +71,7 @@ export async function getServerSideProps() {
   const { data } = await client.query({
     query: gql`
       query Pokemons {
-        pokemons(first: 5) {
+        pokemons(first: 6) {
           name
           image
         }
@@ -41,6 +82,6 @@ export async function getServerSideProps() {
   return {
     props: {
       pokemons: data.pokemons,
-    }
-  }
+    },
+  };
 }

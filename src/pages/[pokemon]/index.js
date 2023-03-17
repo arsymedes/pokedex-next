@@ -1,11 +1,11 @@
-import Nav from "../components/nav/nav";
+import Nav from "../../components/nav/nav";
 import Head from "next/head";
 import Image from "next/image";
-import CardSmall from "../components/card/cardsmall";
-import Info from "../components/info/info";
-import InfoList from "../components/info/infolist";
+import CardSmall from "../../components/card/cardsmall";
+import Info from "../../components/info/info";
+import InfoList from "../../components/info/infolist";
 import { useRouter } from "next/router";
-import client from "../../apollo-client";
+import client from "../../../apollo-client";
 import { gql } from "@apollo/client";
 
 export default function Page({ pokemon }) {
